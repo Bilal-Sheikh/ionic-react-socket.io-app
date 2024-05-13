@@ -32,29 +32,31 @@ import '@ionic/react/css/palettes/dark.system.css';
 
 /* Theme variables */
 import './theme/variables.css';
-import SchoolChatPage from './pages/SchoolChatPage';
+import ChatPage from './pages/ChatPage';
+import { SocketContext } from '../providers/SocketContext';
 import { io } from 'socket.io-client';
+import SchoolList from './components/SchoolList';
+import StudentList from './components/StudentList';
 
 setupIonicReact();
 
 const App: React.FC = () => {
-    return (
-        <IonApp>
-            <IonReactRouter>
-                <IonRouterOutlet>
-                    <Route path="/home" component={Home} exact />
-                    <Route
-                        path="/school-chat/:id"
-                        component={SchoolChatPage}
-                        exact
-                    />
+    const socket = io('http://localhost:3000');
 
-                    <Route exact path="/">
-                        <Redirect to="/home" />
-                    </Route>
-                </IonRouterOutlet>
-            </IonReactRouter>
-        </IonApp>
+    return (
+        <SocketContext.Provider value={socket}>
+            <IonApp>
+                <IonReactRouter>
+                    <IonRouterOutlet>
+                        <Route path="/home" component={Home} />
+                        <Route path="/home" component={Home} />
+                        <Route path="/student" component={SchoolList} />
+                        <Route path="/school" component={StudentList} />
+                        <Route path="/chat-room/:chat" component={ChatPage} />
+                    </IonRouterOutlet>
+                </IonReactRouter>
+            </IonApp>
+        </SocketContext.Provider>
     );
 };
 export default App;

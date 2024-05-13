@@ -13,14 +13,13 @@ import {
 } from '@ionic/react';
 import { useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { io } from 'socket.io-client';
 import { SocketContext } from '../../providers/SocketContext';
 
-export default function SchoolList() {
+export default function StudentList() {
     const socket = useContext(SocketContext);
     const router = useIonRouter();
 
-    const username = 'Bilal';
+    const username = 'School';
 
     function joinRoom(room: string) {
         socket?.emit('join_room', { username, room });
@@ -38,7 +37,7 @@ export default function SchoolList() {
                     <IonButtons slot="start">
                         <IonBackButton />
                     </IonButtons>
-                    <IonTitle>Schools List</IonTitle>
+                    <IonTitle>Students List</IonTitle>
                 </IonToolbar>
             </IonHeader>
 
@@ -51,7 +50,7 @@ export default function SchoolList() {
                             }}
                             fill="clear"
                         >
-                            School 1
+                            Student 1
                         </IonButton>
                     </IonItem>
 
@@ -62,25 +61,25 @@ export default function SchoolList() {
                             }}
                             fill="clear"
                         >
-                            School 2
+                            Student 2
                         </IonButton>
                     </IonItem>
 
                     <IonItem>
                         <IonButton fill="clear">
-                            <Link to={'/chat-room/3'}>School 3</Link>
+                            <Link to={'/chat-room/3'}>Student 3</Link>
                         </IonButton>
                     </IonItem>
 
                     <IonItem>
                         <IonButton fill="clear">
-                            <Link to={'/chat-room/4'}>School 4</Link>
+                            <Link to={'/chat-room/4'}>Student 4</Link>
                         </IonButton>
                     </IonItem>
 
                     <IonItem>
                         <IonButton fill="clear">
-                            <Link to={'/chat-room/5'}>School 5</Link>
+                            <Link to={'/chat-room/5'}>Student 5</Link>
                         </IonButton>
                     </IonItem>
                 </IonList>

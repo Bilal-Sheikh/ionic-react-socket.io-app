@@ -6,8 +6,8 @@ import dotenv from "dotenv";
 
 dotenv.config();
 const app = express();
-const PORT = process.env.PORT || 3000;
-const FE_URL = process.env.FE_URL || "http://localhost:8100";
+const PORT = 3000;
+const FE_URL = "http://localhost:5173";
 
 app.use(cors());
 
@@ -19,7 +19,7 @@ const io = new Server(server, {
     },
 });
 
-// const BOT = "🤖 BOT";
+const BOT = "🤖 BOT";
 
 enum ROLE {
     ADMIN = "ADMIN",
@@ -44,7 +44,7 @@ const currentTime = Date.now();
 
 function sendJoined(socket: Socket, room: string, username: string) {
     socket.to(room).emit("recieve_message", {
-        // username: BOT,
+        username: BOT,
         message: `${username} has joined the room.`,
         time: currentTime,
     });
@@ -52,7 +52,7 @@ function sendJoined(socket: Socket, room: string, username: string) {
 
 function sendWelcome(socket: Socket, username: string) {
     socket.emit("recieve_message", {
-        // username: BOT,
+        username: BOT,
         message: `Welcome ${username}`,
         time: currentTime,
     });
@@ -96,8 +96,8 @@ io.on("connection", (socket) => {
         socket.to(room).emit("users_in_Room", usersInRoom);
         socket.emit("users_in_Room", usersInRoom);
 
-        // console.log("USERSIN ROOM:::::::::::", usersInRoom);
-        // console.log("USERSSSSSSSSS:::::::::::", users);
+        console.log("USERSIN ROOM:::::::::::", usersInRoom);
+        console.log("USERSSSSSSSSS:::::::::::", users);
     });
 
     socket.on("create_room", (data) => {
@@ -161,7 +161,7 @@ io.on("connection", (socket) => {
 
         socket.to(room).emit("users_in_Room", usersInRoom);
         socket.to(room).emit("recieve_message", {
-            // username: BOT,
+            username: BOT,
             message: `${username} has left the room.`,
             time: Date.now(),
         });
@@ -174,7 +174,7 @@ io.on("connection", (socket) => {
 
             socket.to(user.room).emit("users_in_Room", usersInRoom);
             socket.to(user.room).emit("recieve_message", {
-                // username: BOT,
+                username: BOT,
                 message: `${user.username} has disconnected from the chat.`,
                 time: Date.now(),
             });
