@@ -6,6 +6,9 @@ const config = {
     tabWidth: 4,
     semi: true,
     singleQuote: true,
-}
 
-module.exports = config
+    printWidth: 200,
+    useTabs: true,
+};
+
+module.exports = config;

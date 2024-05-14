@@ -107,3 +107,7 @@
 .italic {
     font-style: italic;
 }
+
+.rtl {
+    direction: rtl;
+}
