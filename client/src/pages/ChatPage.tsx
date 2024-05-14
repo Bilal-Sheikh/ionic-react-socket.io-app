@@ -13,9 +13,9 @@ import {
     IonToast,
 } from '@ionic/react';
 import { useCallback, useContext, useEffect, useState } from 'react';
-// import { useParams } from 'react-router';
 import { useIonRouter } from '@ionic/react';
 import { SocketContext } from '../../providers/SocketContext';
+import './ChatPage.css';
 
 interface Message {
     message: string;
@@ -33,11 +33,13 @@ export default function ChatPage() {
 
     const [incomingMessages, setIncomingMessages] = useState<Message[]>([]);
     const [outgoingMessage, setOutgoingMessage] = useState('');
-    // const [typingUser, setTypingUser] = useState('');
+    const [typingUser, setTypingUser] = useState('');
 
-    // setTimeout(() => {
-    //     setTypingUser("");
-    // }, 5000);
+    let timeout;
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+        setTypingUser('');
+    }, 5000);
 
     const formatTime = useCallback((time: string) => {
         const date = new Date(time);
@@ -48,12 +50,15 @@ export default function ChatPage() {
         const formattedTime = `${formattedHours}:${minutes} ${ampm}`;
         return formattedTime;
     }, []);
+    const isTyping = useCallback(() => {
+        socket?.emit('is_typing', {
+            username: username,
+            room: room,
+        });
+    }, []);
 
     function sendMessage() {
         if (outgoingMessage.trim().length > 0) {
-            console.log('in send');
-            console.log(outgoingMessage);
-
             const currentTime = Date.now();
             socket?.emit('send_message', {
                 username: username,
@@ -61,7 +66,7 @@ export default function ChatPage() {
                 message: outgoingMessage,
                 time: currentTime,
             });
-            // setTypingUser('');
+            setTypingUser('');
             setOutgoingMessage('');
         }
     }
@@ -71,7 +76,7 @@ export default function ChatPage() {
             username: username,
             room: room,
         });
-        router.push('/home');
+        router.goBack();
     }
 
     useEffect(() => {
@@ -98,13 +103,14 @@ export default function ChatPage() {
             }
         });
 
-        // socket.on('user_typing', (data) => {
-        //     setTypingUser(data.username);
-        // });
+        socket.on('user_typing', (data) => {
+            setTypingUser(data.username);
+        });
 
         return () => {
             socket.off('recieve_message');
-            // socket.off('user_typing');
+            socket.off('user_typing');
+            // clearTimeout(timeout);
         };
     }, [socket]);
 
@@ -112,10 +118,15 @@ export default function ChatPage() {
         <IonPage>
             <IonHeader>
                 <IonToolbar>
-                    <IonButtons slot="start">
-                        <IonBackButton />
-                    </IonButtons>
-                    <IonTitle>SCHOOL CHAT ID - {room}</IonTitle>
+                    <IonButton
+                        slot="start"
+                        onClick={() => {
+                            handleLeaveRoom();
+                        }}
+                    >
+                        Back
+                    </IonButton>
+                    <IonTitle>{room}</IonTitle>
                 </IonToolbar>
             </IonHeader>
 
@@ -141,7 +152,7 @@ export default function ChatPage() {
                                 </div>
                             ) : (
                                 <div className="flex items-end gap-2 pt-4">
-                                    <div className="rounded-lg bg-zinc-200 dark:bg-zinc-700 p-2">
+                                    <div className="rounded-lg bg-zinc-200 p-2">
                                         <div className="flex justify-between text-xs pb-1">
                                             <p className="mr-2 font-bold border-b">
                                                 {message.username}
@@ -166,9 +177,9 @@ export default function ChatPage() {
                     <IonItem>
                         <IonInput
                             placeholder="Enter Message"
-                            onIonChange={(e) => {
+                            onIonInput={(e) => {
                                 setOutgoingMessage(e.detail.value ?? '');
-                                // isTyping();
+                                isTyping();
                             }}
                             value={outgoingMessage}
                             onKeyDown={(e) => {
@@ -184,6 +195,13 @@ export default function ChatPage() {
                         >
                             Send
                         </IonButton>
+                    </IonItem>
+                    <IonItem>
+                        {typingUser && (
+                            <p className="text-base mt-2 italic text-white">
+                                {typingUser} is typing...
+                            </p>
+                        )}
                     </IonItem>
                 </IonToolbar>
             </IonFooter>

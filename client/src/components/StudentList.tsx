@@ -66,20 +66,35 @@ export default function StudentList() {
                     </IonItem>
 
                     <IonItem>
-                        <IonButton fill="clear">
-                            <Link to={'/chat-room/3'}>Student 3</Link>
+                        <IonButton
+                            onClick={() => {
+                                joinRoom('room-3');
+                            }}
+                            fill="clear"
+                        >
+                            Student 3
                         </IonButton>
                     </IonItem>
 
                     <IonItem>
-                        <IonButton fill="clear">
-                            <Link to={'/chat-room/4'}>Student 4</Link>
+                        <IonButton
+                            onClick={() => {
+                                joinRoom('room-4');
+                            }}
+                            fill="clear"
+                        >
+                            Student 4
                         </IonButton>
                     </IonItem>
 
                     <IonItem>
-                        <IonButton fill="clear">
-                            <Link to={'/chat-room/5'}>Student 5</Link>
+                        <IonButton
+                            onClick={() => {
+                                joinRoom('room-5');
+                            }}
+                            fill="clear"
+                        >
+                            Student 5
                         </IonButton>
                     </IonItem>
                 </IonList>
