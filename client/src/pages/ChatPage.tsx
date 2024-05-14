@@ -21,7 +21,7 @@ import { useIonRouter } from '@ionic/react';
 import { SocketContext } from '../../providers/SocketContext';
 import './ChatPage.css';
 import { colorPalette, document, globe, language } from 'ionicons/icons';
-import { GoogleTranslator } from '@translate-tools/core/translators/GoogleTranslator';
+import { GoogleTranslatorTokenFree } from '@translate-tools/core/translators/GoogleTranslator';
 
 interface Message {
 	message: string;
@@ -34,7 +34,7 @@ enum Language {
 }
 
 export default function ChatPage() {
-	const translator = new GoogleTranslator();
+	const translator = new GoogleTranslatorTokenFree();
 	const router = useIonRouter();
 	const socket = useContext(SocketContext);
 	if (!socket) return;
@@ -48,7 +48,7 @@ export default function ChatPage() {
 	const [typingUser, setTypingUser] = useState('');
 	const [selectLanguage, setSelectLanguage] = useState(Language.ENGLISH);
 
-	console.log('LANGUAGE', selectLanguage);
+	// console.log('LANGUAGE', selectLanguage);
 
 	let timeout;
 	clearTimeout(timeout);
@@ -72,7 +72,7 @@ export default function ChatPage() {
 		});
 	}, []);
 
-	function sendMessage() {
+	const sendMessage = async () => {
 		if (outgoingMessage.trim().length > 0) {
 			const currentTime = Date.now();
 			socket?.emit('send_message', {
@@ -84,7 +84,7 @@ export default function ChatPage() {
 			setTypingUser('');
 			setOutgoingMessage('');
 		}
-	}
+	};
 	function handleLeaveRoom() {
 		socket?.emit('leave_room', {
 			userId: socket.id,
@@ -97,10 +97,24 @@ export default function ChatPage() {
 	useEffect(() => {
 		socket.on('recieve_message', (data) => {
 			if (data.username === '🤖 BOT') {
-				// return toast(data.message);
 				console.log(data.message);
 				return <IonToast message={data.message} duration={3000} position="top"></IonToast>;
+			} else if (username === 'School') {
+				console.log('inside else if cause role is SCHOOL dwag');
+
+				translator.translate(data.message, 'ar', 'en').then((translatedMessage) => {
+					setIncomingMessages((prevMesaages) => [
+						...prevMesaages,
+						{
+							message: translatedMessage,
+							username: data.username,
+							time: data.time,
+						},
+					]);
+				});
 			} else {
+				console.log('inside else, normal stuff');
+
 				setIncomingMessages((prevMesaages) => [
 					...prevMesaages,
 					{
@@ -197,16 +211,7 @@ export default function ChatPage() {
 
 			<IonFooter>
 				<IonToolbar>
-					<IonItem>
-						{selectLanguage === Language.ARABIC && (
-							<IonButton
-								onClick={() => {
-									sendMessage();
-								}}
-							>
-								Send
-							</IonButton>
-						)}
+					<IonItem className={`${selectLanguage === Language.ARABIC ? 'rtl' : ''}`}>
 						<IonInput
 							placeholder="Enter Message"
 							onIonInput={(e) => {
@@ -220,15 +225,13 @@ export default function ChatPage() {
 								}
 							}}
 						/>
-						{selectLanguage === Language.ENGLISH && (
-							<IonButton
-								onClick={() => {
-									sendMessage();
-								}}
-							>
-								Send
-							</IonButton>
-						)}
+						<IonButton
+							onClick={() => {
+								sendMessage();
+							}}
+						>
+							Send
+						</IonButton>
 					</IonItem>
 					<IonItem>{typingUser && <p className="text-base mt-2 italic text-white">{typingUser} is typing...</p>}</IonItem>
 				</IonToolbar>
