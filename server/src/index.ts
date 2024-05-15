@@ -100,28 +100,6 @@ io.on("connection", (socket) => {
         console.log("USERSSSSSSSSS:::::::::::", users);
     });
 
-    socket.on("create_room", (data) => {
-        const { username, room } = data;
-        socket.join(room);
-        sendJoined(socket, room, username);
-        sendWelcome(socket, username);
-
-        users.push({ id: socket.id, username, room, role: ROLE.ADMIN });
-
-        usersInRoom = users.reduce((acc, user) => {
-            const existingRoom = acc.find((room) => room.roomId === user.room);
-            if (existingRoom) {
-                existingRoom.users.push(user);
-            } else {
-                acc.push({ roomId: user.room, users: [user] });
-            }
-            return acc;
-        }, [] as UsersInRoom[]);
-
-        socket.to(room).emit("users_in_Room", usersInRoom);
-        socket.emit("users_in_Room", usersInRoom);
-    });
-
     socket.on("send_message", (data) => {
         const { room } = data;
         io.in(room).emit("recieve_message", data);
@@ -130,27 +108,6 @@ io.on("connection", (socket) => {
     socket.on("is_typing", (data) => {
         const { username, room } = data;
         socket.to(room).emit("user_typing", { username });
-    });
-
-    socket.on("kick_user", (data) => {
-        const { userId, username, room } = data;
-        if (userId) {
-            const clientSocket = io.sockets.sockets.get(userId);
-            // console.log("Client socket: ", clientSocket);
-
-            if (clientSocket) {
-                leaveRoom(room, userId);
-
-                socket.to(room).emit("kicked", { userId, username, room });
-                socket.to(room).emit("users_in_Room", usersInRoom);
-                socket.emit("users_in_Room", usersInRoom);
-
-                clientSocket.disconnect(true);
-                console.log("Disconnected client: " + userId);
-            } else {
-                console.log("Client not found");
-            }
-        }
     });
 
     socket.on("leave_room", (data) => {

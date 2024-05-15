@@ -1,26 +1,9 @@
-import {
-	IonHeader,
-	IonToolbar,
-	IonTitle,
-	IonContent,
-	IonBackButton,
-	IonButtons,
-	IonPage,
-	IonFooter,
-	IonInput,
-	IonItem,
-	IonButton,
-	IonToast,
-	IonFab,
-	IonFabButton,
-	IonFabList,
-	IonIcon,
-} from '@ionic/react';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonPage, IonFooter, IonInput, IonItem, IonButton, IonToast, IonFab, IonFabButton, IonFabList, IonIcon } from '@ionic/react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useIonRouter } from '@ionic/react';
 import { SocketContext } from '../../providers/SocketContext';
 import './ChatPage.css';
-import { colorPalette, document, globe, language } from 'ionicons/icons';
+import { language } from 'ionicons/icons';
 import { GoogleTranslatorTokenFree } from '@translate-tools/core/translators/GoogleTranslator';
 
 interface Message {
@@ -43,6 +26,7 @@ export default function ChatPage() {
 	const username = queryParams.get('user');
 	const room = queryParams.get('room');
 
+	const ref = useRef<HTMLDivElement>(null);
 	const [incomingMessages, setIncomingMessages] = useState<Message[]>([]);
 	const [outgoingMessage, setOutgoingMessage] = useState('');
 	const [typingUser, setTypingUser] = useState('');
@@ -100,8 +84,6 @@ export default function ChatPage() {
 				console.log(data.message);
 				return <IonToast message={data.message} duration={3000} position="top"></IonToast>;
 			} else if (username === 'School') {
-				console.log('inside else if cause role is SCHOOL dwag');
-
 				translator.translate(data.message, 'ar', 'en').then((translatedMessage) => {
 					setIncomingMessages((prevMesaages) => [
 						...prevMesaages,
@@ -113,8 +95,6 @@ export default function ChatPage() {
 					]);
 				});
 			} else {
-				console.log('inside else, normal stuff');
-
 				setIncomingMessages((prevMesaages) => [
 					...prevMesaages,
 					{
@@ -136,6 +116,16 @@ export default function ChatPage() {
 			// clearTimeout(timeout);
 		};
 	}, [socket]);
+
+	useEffect(() => {
+		const scrollToBottom = () => {
+			if (ref.current) {
+				ref.current.scrollIntoView({ behavior: 'instant' });
+			}
+		};
+
+		scrollToBottom();
+	}, [incomingMessages]);
 
 	return (
 		<IonPage>
@@ -178,7 +168,7 @@ export default function ChatPage() {
 
 				<div className={`flex-grow overflow-auto p-4 h-[500px] md:h-auto ${selectLanguage === Language.ARABIC ? 'rtl' : ''}`}>
 					{incomingMessages.map((message, index) => (
-						<div key={index}>
+						<div ref={ref} key={index}>
 							{message.username === username ? (
 								<div className="flex items-end gap-2 justify-end pt-4">
 									<div className={`rounded-lg bg-blue-500 text-white p-2 ${selectLanguage === Language.ARABIC ? 'rtl' : ''}`}>
